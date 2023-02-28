@@ -1,0 +1,53 @@
+---
+- name: Playbook instalacion de webservers agnostico
+  hosts: all
+  tasks:
+  - name: Instalar paquete httpd en redhat
+    yum:
+      name: httpd
+      state: latest
+    when: '"RedHat" in ansible_distribution'
+
+  - name: Instalar paquete apache2 en ubuntu
+    apt:
+      name: apache2
+      state: latest
+    when: '"Ubuntu" in ansible_distribution'
+
+  - name: Reiniciando el servicio httpd
+    service:
+      name: httpd
+      state: restarted
+    when: '"RedHat" in ansible_distribution'
+
+  - name: Reiniciando el servicio apache2
+    service:
+      name: apache2
+      state: restarted
+    when: '"Ubuntu" in ansible_distribution'
+
+  - name: Permitiendo el servicio http
+    firewalld:
+      service: http
+      permanent: true
+      state: enabled
+    when: '"RedHat" in ansible_distribution'
+
+  - name: Permitiendo el puerto 80
+    ufw:
+      rule: allow
+      port: '80'
+      proto: tcp
+    when: '"Ubuntu" in ansible_distribution'
+
+  - name: Reiniciando el servicio firewalld
+    service:
+      name: firewalld
+      state: restarted
+    when: '"RedHat" in ansible_distribution'
+
+  - name: Reiniciando el servicio UFW
+    service:
+      name: ufw
+      state: restarted
+    when: '"Ubuntu" in ansible_distribution'
